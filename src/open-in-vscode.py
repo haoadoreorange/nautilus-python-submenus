@@ -11,7 +11,7 @@ from gi import require_version
 require_version('Gtk', '3.0')
 require_version('Nautilus', '3.0')
 from gi.repository import Nautilus, GObject
-from subprocess import call
+from subprocess import Popen
 import os
 
 # path to vscode
@@ -27,22 +27,22 @@ NEWWINDOW = False
 class VSCodeExtension(GObject.GObject, Nautilus.MenuProvider):
 
     def launch_vscode(self, menu, files):
-        safepaths = ''
-        args = ''
+        filepaths = []
+        args = []
 
         for file in files:
             filepath = file.get_location().get_path()
-            safepaths += '"' + filepath + '" '
+            filepaths.append(filepath)
 
             # If one of the files we are trying to open is a folder
             # create a new instance of vscode
             if os.path.isdir(filepath) and os.path.exists(filepath):
-                args = '--new-window '
+                args = ['--new-window']
 
         if NEWWINDOW:
-            args = '--new-window '
-
-        call(VSCODE + ' ' + args + safepaths + '&', shell=True)
+            args = ['--new-window']
+    
+        Popen([VSCODE] + args + filepaths)
 
     def get_file_items(self, window, files):
         item = Nautilus.MenuItem(
