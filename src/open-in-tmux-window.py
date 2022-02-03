@@ -36,7 +36,7 @@ class TmuxExtension(GObject.GObject, Nautilus.MenuProvider):
                 break
 
 
-        if no_files_selected:
+        if no_files_selected and call(TMUX + ' list-sessions', shell=True) == 0:
             item = Nautilus.MenuItem(
                 name='TmuxOpen',
                 label='Open in new ' + TMUXNAME + ' window',
