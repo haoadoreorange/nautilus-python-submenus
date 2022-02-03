@@ -10,7 +10,7 @@ from gi.repository import Nautilus, GObject
 from subprocess import call
 import os
 
-# path to vscode
+# path to tmux
 TMUX = 'tmux'
 
 # what name do you want to see in the context menu?
@@ -21,13 +21,16 @@ class TmuxExtension(GObject.GObject, Nautilus.MenuProvider):
     def launch_tmux(self, menu, dirs):
         safepaths = ''
         args = ''
-
+        
+        # Open a new tmux window in each of the selected folders
         for dir in dirs:
             dirpath = dir.get_location().get_path()
             safepath = '"' + dirpath + '" '
             call(TMUX + ' new-window -c ' + safepath, shell=True)
 
     def get_file_items(self, window, dirs):
+
+        # Check that each selected object is a folder, don't add menu item if not
         no_files_selected = True
         for dir in dirs:
             dirpath = dir.get_location().get_path()
@@ -35,7 +38,7 @@ class TmuxExtension(GObject.GObject, Nautilus.MenuProvider):
                 no_files_selected = False
                 break
 
-
+        # If all selected items are folders, add menu item
         if no_files_selected and call(TMUX + ' list-sessions', shell=True) == 0:
             item = Nautilus.MenuItem(
                 name='TmuxOpen',
