@@ -10,30 +10,35 @@ FILE_ROLLER = 'file-roller'
 
 class UnrarExtension(GObject.GObject, Nautilus.MenuProvider):
 
-    def unrar_here(self, menu, filepath):
-        Popen([FILE_ROLLER, '-h', filepath])
+    def unrar_here(self, menu, files):
+        for file in files:
+            filepath = file.get_location().get_path()
+            if os.path.splitext(filepath)[1] == '.rar':
+                Popen([FILE_ROLLER, '-h', filepath])
         
-    def unrar_to(self, menu, filepath):
-        Popen([FILE_ROLLER, '-f', filepath])
+    def unrar_to(self, menu, files):
+        for file in files:
+            filepath = file.get_location().get_path()
+            if os.path.splitext(filepath)[1] == '.rar':
+                Popen([FILE_ROLLER, '-f', filepath])
 
     def get_file_items(self, window, files):
-        if len(files) == 1:
-            filepath = files[0].get_location().get_path()
+        for file in files:
+            filepath = file.get_location().get_path()
             if os.path.splitext(filepath)[1] == '.rar':
                 item1 = Nautilus.MenuItem(
                     name='UnrarHere',
                     label='Unrar Here',
                     tip='Unrar in the current directory'
                 )
-                item1.connect('activate', self.unrar_here, filepath)
+                item1.connect('activate', self.unrar_here, files)
                 item2 = Nautilus.MenuItem(
                     name='UnrarTo',
                     label='Unrar to',
                     tip='Unrar to a chosen directory'
                 )
-                item2.connect('activate', self.unrar_to, filepath)
+                item2.connect('activate', self.unrar_to, files)
                 return [item1, item2]
-            return None 
         return None 
 
     def get_background_items(self, window, file_):
