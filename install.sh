@@ -6,7 +6,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 if ! type nautilus >/dev/null 2>&1; then
-    printf "${RED}Nautilus not installed on system${NC}"
+    printf "${RED}Nautilus is not installed, abort${NC}"
     exit 1
 fi
 
@@ -16,40 +16,32 @@ printf_install() {
 
 # Install python-nautilus
 if type pacman >/dev/null 2>&1; then
-    # check if already install, else install
-    # installed=$(pacman -Qi python-nautilus 2>/dev/null || :)
-    # if [ -z "$installed" ]; then
-    #     printf_install
-    #     sudo pacman -S --noconfirm python-nautilus
-    # fi
-    printf_install
-    sudo pacman -S --noconfirm --needed python-nautilus
-elif type apt-get >/dev/null 2>&1; then
-    # Find Ubuntu python-nautilus package
+    # Check if already install, else install
+    if [ -z "$(pacman -Qi python-nautilus 2>/dev/null || :)" ]; then
+        printf_install
+        sudo pacman -S --noconfirm python-nautilus
+    fi
+elif type apt >/dev/null 2>&1; then
+    # # Find Ubuntu python-nautilus package
     # package_name="python3-nautilus"
     # found_package=$(apt-cache search --names-only $package_name)
     # if [ -z "$found_package" ]; then
     #     package_name="python3-nautilus"
     # fi
 
-    # # Check if the package needs to be installed and install it
-    # installed=$(apt list --installed $package_name -qq 2>/dev/null)
-    # if [ -z "$installed" ]; then
-    #     printf_install
-    #     sudo apt-get install -y $package_name
-    # fi
-    printf_install
-    sudo apt-get install -y python3-nautilus
+    # Check if already install, else install
+    if [ -z "$(apt list --installed python3-nautilus -qq 2>/dev/null)" ]; then
+        printf_install
+        sudo apt install -y python3-nautilus
+    fi
 elif type dnf >/dev/null 2>&1; then
-    # installed=$(dnf list --installed nautilus-python 2>/dev/null)
-    # if [ -z "$installed" ]; then
-    #     printf_install
-    #     sudo dnf install -y nautilus-python
-    # fi
-    printf_install
-    sudo dnf install -y nautilus-python
+    # Check if already install, else install
+    if [ -z "$(dnf list --installed nautilus-python 2>/dev/null)" ]; then
+        printf_install
+        sudo dnf install -y nautilus-python
+    fi
 else
-    printf "${RED}Pkg manager not supported, failed to install python-nautilus, make sure to install it manually${NC}"
+    printf "${RED}Pkg manager not supported, make sure 'python-nautilus' is installed${NC}"
 fi
 
 # Install scripts
@@ -71,6 +63,7 @@ for file in "$INSTALL_DIR"/src/*; do
             printf "${GREEN}Softlinking nautilus submenu '%s' to %s${NC}\n" "$(basename "$file")" "$NAUTILUS_PYTHON_SCRIPTS"
             chmod +x "$file"
             ln -s "$file" "$NAUTILUS_PYTHON_SCRIPTS"
+            restart_nautilus=true
         else
             printf "${RED}ERROR: Nautilus submenu '%s' already exists in %s${NC}\n" "$(basename "$file")" "$NAUTILUS_PYTHON_SCRIPTS"
             failed=true
@@ -80,5 +73,8 @@ done
 [ "${failed-}" != "true" ] && printf "${GREEN}Nautilus python submenus installed succesfully${NC}\n"
 
 # Restart nautilus
-echo "Restarting nautilus..."
-nautilus -q || :
+[ "${restart_nautilus-}" = "true" ] &&
+    {
+        echo "Restarting nautilus..."
+        nautilus -q
+    }
