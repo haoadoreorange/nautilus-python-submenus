@@ -6,12 +6,12 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 if ! type nautilus >/dev/null 2>&1; then
-    printf "${RED}Nautilus is not installed, abort${NC}"
+    printf "${RED}Nautilus is not installed, abort${NC}\n"
     exit 1
 fi
 
 printf_install() {
-    printf "${GREEN}Download python-nautilus${NC}"
+    printf "${GREEN}Download python-nautilus${NC}\n"
 }
 
 # Install python-nautilus
@@ -41,7 +41,7 @@ elif type dnf >/dev/null 2>&1; then
         sudo dnf install -y nautilus-python
     fi
 else
-    printf "${RED}Pkg manager not supported, make sure 'python-nautilus' is installed${NC}"
+    printf "${RED}Pkg manager not supported, make sure 'python-nautilus' is installed${NC}\n"
 fi
 
 # Install scripts
