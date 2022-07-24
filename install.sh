@@ -70,7 +70,6 @@ for file in "$INSTALL_DIR"/src/*; do
         fi
     fi
 done
-[ "${failed-}" != "true" ] && printf "${GREEN}Nautilus python submenus installed succesfully${NC}\n"
 
 # Restart nautilus
 [ "${restart_nautilus-}" = "true" ] &&
@@ -78,3 +77,5 @@ done
         echo "Restarting nautilus..."
         nautilus -q
     }
+
+[ "${failed-}" != "true" ] && printf "${GREEN}Nautilus python submenus installed succesfully${NC}\n"
